@@ -59,8 +59,14 @@ def insert_book_to_notion(books, index, bookId):
         book["ISBN"] = book.get("isbn")
         book["链接"] = weread_api.get_url(bookId)
         book["简介"] = book.get("intro")
+        def get_author(authors_str):
+            if re.search('[a-zA-Z]', authors_str):  # 如果作者字符串中有英文字母
+                return " ".join(authors_str.split()[:2])  # 取前两个单词
+            else:  # 否则，即作者字符串中无英文字母，认为是中文作者名
+                return authors_str.split()[0]  # 取第一个字符
+
         book["作者"] = notion_helper.get_relation_id(
-            book.get("author").split(" ")[0], notion_helper.author_database_id, USER_ICON_URL
+            get_author(book.get("author")), notion_helper.author_database_id, USER_ICON_URL
         )
         if book.get("categories"):
             book["分类"] = [
